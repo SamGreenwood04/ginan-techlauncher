@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  ginan-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      # Mount workspace
+      - ../:/workspace:cached
+      
+      # Persistent vcpkg cache - libraries will persist between rebuilds
+      - vcpkg-cache:/opt/vcpkg/downloads:cached
+      - vcpkg-packages:/opt/vcpkg/packages:cached
+      - vcpkg-buildtrees:/opt/vcpkg/buildtrees:cached
+      
+      # ccache for faster C++ compilation
+      - ccache:/home/ubuntu/.ccache:cached
+    
+    working_dir: /workspace
+    command: sleep infinity
+    stdin_open: true
+    tty: true
+    
+    # If you need network mode host for specific services
+    # network_mode: host
+    
+  # MongoDB service - separate container
+  # Uncomment when ready to use
+  # mongo:
+  #   image: mongo:7
+  #   restart: unless-stopped
+  #   volumes:
+  #     - mongo-data:/data/db
+  #   ports:
+  #     - "27017:27017"
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: ginan
+  #     MONGO_INITDB_ROOT_PASSWORD: ginan_dev
+  #   networks:
+  #     - ginan-network
+
+volumes:
+  # Persistent volumes for vcpkg artifacts
+  vcpkg-cache:
+  vcpkg-packages:
+  vcpkg-buildtrees:
+  
+  # ccache for faster builds
+  ccache:
+  
+  # MongoDB data (uncomment when using mongo service)
+  # mongo-data:
+
+# networks:
+#   ginan-network:
+#     driver: bridge

@@ -1,0 +1,43 @@
+{
+  "name": "Ginan Dev Container",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "ginan-dev",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopCompose",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "git.enableCommitSigning": true,
+        "cmake.configureSettings": {
+          "CMAKE_TOOLCHAIN_FILE": "${env:VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+        }
+      },
+      "extensions": [
+        "ms-vscode.cpptools-extension-pack",
+        "ms-vscode.cmake-tools",
+        "twxs.cmake",
+        "ms-python.python",
+        "ms-vscode.vscode-json",
+        "atlassian.atlascode",
+        "ms-azuretools.vscode-containers",
+        "wdhongtw.gpg-indicator"
+      ]
+    }
+  },
+  "mounts": [
+    "source=${localEnv:HOME}/.ssh,target=/home/ubuntu/.ssh,type=bind,consistency=cached,readonly",
+    "source=${localEnv:HOME}/.gnupg/pubring.kbx,target=/home/ubuntu/.gnupg-host/pubring.kbx,type=bind,consistency=cached,readonly",
+    "source=${localEnv:HOME}/.gnupg/private-keys-v1.d,target=/home/ubuntu/.gnupg-host/private-keys-v1.d,type=bind,consistency=cached,readonly",
+    "source=${localEnv:HOME}/.gnupg/trustdb.gpg,target=/home/ubuntu/.gnupg-host/trustdb.gpg,type=bind,consistency=cached,readonly"
+  ],
+  "postCreateCommand": "sudo chown -R ubuntu:ubuntu /opt/vcpkg /home/ubuntu/.ccache 2>/dev/null || true && chmod 700 /home/ubuntu/.ssh && chmod 600 /home/ubuntu/.ssh/* 2>/dev/null || true && mkdir -p /home/ubuntu/.gnupg-local && chmod 700 /home/ubuntu/.gnupg-local && cp -r /home/ubuntu/.gnupg-host/* /home/ubuntu/.gnupg-local/ 2>/dev/null || true && chmod 600 /home/ubuntu/.gnupg-local/* 2>/dev/null || true && git config --global user.name 'Sebastien Allgeyer' && git config --global user.email 'sebastien.allgeyer@gmail.com' && git config --global user.signingkey 6CEABD6E543862F80B6E61E42AF527AE7996B8FE && git config --global commit.gpgsign true && git config --global gpg.program gpg && echo 'export GPG_TTY=\$(tty)' >> ~/.bashrc && echo 'export GNUPGHOME=\$HOME/.gnupg-local' >> ~/.bashrc && echo 'gpgconf --launch gpg-agent 2>/dev/null || true' >> ~/.bashrc",
+  "postStartCommand": "bash -c 'export GPG_TTY=$(tty); export GNUPGHOME=$HOME/.gnupg-local; mkdir -p ~/.gnupg-local; echo \"pinentry-program /usr/bin/pinentry-curses\" > ~/.gnupg-local/gpg-agent.conf; echo \"allow-loopback-pinentry\" >> ~/.gnupg-local/gpg-agent.conf; gpgconf --kill gpg-agent 2>/dev/null || true; gpgconf --launch gpg-agent'",
+  "remoteUser": "ubuntu",
+  "remoteEnv": {
+    "GNUPGHOME": "/home/ubuntu/.gnupg-local"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {}
+  }
+}
